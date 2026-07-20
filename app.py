@@ -208,25 +208,32 @@ st.divider()
 st.markdown("####  Try a Demo")
 col1, col2 = st.columns(2)
 
+demo = pd.read_csv("demo_features.csv")
+
+col1, col2 = st.columns(2)
+
 with col1:
-    if st.button(" Load Phishing Example", use_container_width=True):
-        df = pd.read_csv("C:\\Users\\HP\\Desktop\\jupyter\\PhiUSIIL_Phishing_URL_Dataset.csv")
-        df_numeric = df._get_numeric_data()
-        sample = df_numeric[df_numeric['label'] == 1].iloc[PHISHING_ROW]
+    if st.button("Load Phishing Example", use_container_width=True):
+        sample = demo[demo["label"] == 0].iloc[0]
+
         for col in feature_cols:
-            st.session_state[col] = bool(sample[col]) if col in BINARY_FEATURES else float(sample[col])
+            value = sample[col]
+            st.session_state[col] = bool(value) if col in BINARY_FEATURES else float(value)
+
         st.rerun()
 
 with col2:
-    if st.button(" Load Legitimate Example", use_container_width=True):
-        df = pd.read_csv("C:\\Users\\HP\\Desktop\\jupyter\\PhiUSIIL_Phishing_URL_Dataset.csv")
-        df_numeric = df._get_numeric_data()
-        sample = df_numeric[df_numeric['label'] == 0].iloc[LEGIT_ROW]
+    if st.button("Load Legitimate Example", use_container_width=True):
+        sample = demo[demo["label"] == 1].iloc[0]
+
         for col in feature_cols:
-            st.session_state[col] = bool(sample[col]) if col in BINARY_FEATURES else float(sample[col])
+            value = sample[col]
+            st.session_state[col] = bool(value) if col in BINARY_FEATURES else float(value)
+
         st.rerun()
 
 st.divider()
+
 
 # ---- Inputs in 2 columns instead of one long list ----
 st.markdown ("####  Website Features")
@@ -255,14 +262,22 @@ if st.button(" Analyze Website", type="primary", use_container_width=True):
     prediction = model.predict(df_input)[0]
     proba = model.predict_proba(df_input)[0]
 
-    if prediction == 1:
+    prediction = model.predict(df_input)[0]
+    proba = model.predict_proba(df_input)[0]
+
+    st.write("Prediction =", prediction)
+    st.write("Probability =", proba)
+    st.write(df_input)
+    
+
+    if prediction == 0:
         st.markdown(
-            f"<div class='result-box' style='background-color:#FEE2E2; color:#B91C1C;'>⚠️ PHISHING DETECTED<br><span style='font-size:1rem;'>Confidence: {proba[1]*100:.1f}%</span></div>",
+            f"<div class='result-box' style='background-color:#FEE2E2; color:#B91C1C;'>⚠️ PHISHING DETECTED<br><span style='font-size:1rem;'>Confidence: {proba[0]*100:.1f}%</span></div>",
             unsafe_allow_html=True
         )
     else:
         st.markdown(
-            f"<div class='result-box' style='background-color:#DCFCE7; color:#15803D;'>✅ LEGITIMATE WEBSITE<br><span style='font-size:1rem;'>Confidence: {proba[0]*100:.1f}%</span></div>",
+            f"<div class='result-box' style='background-color:#DCFCE7; color:#15803D;'>✅ LEGITIMATE WEBSITE<br><span style='font-size:1rem;'>Confidence: {proba[1]*100:.1f}%</span></div>",
             unsafe_allow_html=True
         )
 
